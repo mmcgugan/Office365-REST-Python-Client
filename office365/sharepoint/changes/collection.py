@@ -1,6 +1,26 @@
 from office365.sharepoint.changes.change import Change
 from office365.sharepoint.entity_collection import EntityCollection
 
+from office365.sharepoint.changes.alert import ChangeAlert
+from office365.sharepoint.changes.field import ChangeField
+from office365.sharepoint.changes.item  import ChangeItem
+from office365.sharepoint.changes.group import ChangeGroup
+from office365.sharepoint.changes.list  import ChangeList
+from office365.sharepoint.changes.user  import ChangeUser
+from office365.sharepoint.changes.web   import ChangeWeb
+from office365.sharepoint.changes.content_type import ChangeContentType
+
+
+TYPE_MAP = {
+    "SP.ChangeAlert": ChangeAlert,
+    "SP.ChangeField": ChangeField,
+    "SP.ChangeItem" : ChangeItem,
+    "SP.ChangeGroup": ChangeGroup,
+    "SP.ChangeList" : ChangeList,
+    "SP.ChangeUser" : ChangeUser,
+    "SP.ChangeWeb"  : ChangeWeb,
+    "SP.ChangeContentType": ChangeContentType,
+}
 
 class ChangeCollection(EntityCollection[Change]):
     """Represents a collection of Change objects"""
@@ -15,21 +35,23 @@ class ChangeCollection(EntityCollection[Change]):
     def _resolve_change_type(self, properties):
         # type: (dict) -> None
         """Resolves a change type"""
-        from office365.sharepoint.changes.alert import ChangeAlert
-        from office365.sharepoint.changes.content_type import ChangeContentType
-        from office365.sharepoint.changes.field import ChangeField
-        from office365.sharepoint.changes.group import ChangeGroup
-        from office365.sharepoint.changes.item import ChangeItem
-        from office365.sharepoint.changes.list import ChangeList
-        from office365.sharepoint.changes.user import ChangeUser
-        from office365.sharepoint.changes.web import ChangeWeb
 
-        if "ItemId" in properties and "ListId" in properties:
-            self._item_type = ChangeItem
-        elif "ListId" in properties and "WebId" in properties:
-            self._item_type = ChangeList
-        elif "WebId" in properties:
-            self._item_type = ChangeWeb
+        if "__metadata" in properties:
+            check_type = properties["__metadata"].get("type")
+            if check_type in TYPE_MAP:
+                self._item_type = TYPE_MAP[check_type]
+                return
+
+        if "WebId" in properties:
+            if "FieldId" in properties:
+                self._item_type = ChangeField
+            elif "ListId" in properties:
+                if "ItemId" in properties:
+                    self._item_type = ChangeItem
+                else:
+                    self._item_type = ChangeList
+            else:
+                self._item_type = ChangeWeb
         elif "UserId" in properties:
             self._item_type = ChangeUser
         elif "GroupId" in properties:
