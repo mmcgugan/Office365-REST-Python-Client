@@ -46,7 +46,6 @@ class Change(Entity):
         return self.properties.get("Time", datetime.datetime.min)
 
     def get_property(self, name, default_value=None):
-        if default_value is None:
-            property_mapping = {"ChangeToken": self.change_token}
-            default_value = property_mapping.get(name, None)
+        if default_value is None and name == "ChangeToken":
+            default_value = self.change_token
         return super(Change, self).get_property(name, default_value)
