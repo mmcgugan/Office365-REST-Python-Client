@@ -1,4 +1,5 @@
 import json
+import os.path
 import sys
 from typing import Any, Callable
 
@@ -67,8 +68,21 @@ class AuthenticationContext(object):
                 "Private key is missing. Use either 'cert_path' or 'private_key' to pass the value"
             )
         elif cert_path is not None:
-            with open(cert_path, "r", encoding="utf8") as f:
+            with open(cert_path, "rb") as f:
                 private_key = f.read()
+
+            if passphrase and os.path.splitext(cert_path)[-1].lower() == ".pfx":
+                try:
+                    from cryptography.hazmat.primitives.serialization import pkcs12, Encoding, PrivateFormat, NoEncryption
+                    pfx = pkcs12.load_pkcs12(private_key, passphrase.encode("utf-8"))
+                    private_key = pfx.key.private_bytes(
+                        encoding = Encoding.PEM,
+                        format = PrivateFormat.PKCS8,
+                        encryption_algorithm = NoEncryption(),
+                    )
+                    passphrase = None
+                except Exception:
+                    pass
 
         def _acquire_token():
             authority_url = "https://login.microsoftonline.com/{0}".format(tenant)
