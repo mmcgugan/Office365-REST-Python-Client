@@ -197,6 +197,7 @@ class AuthenticationContext(object):
                     credentials.userName,
                     credentials.password,
                     browser_mode,
+                    credentials.upn,
                     environment,
                 )
         else:
@@ -207,7 +208,7 @@ class AuthenticationContext(object):
 
         self._authenticate = _authenticate
 
-    def acquire_token_for_user(self, username, password, browser_mode=False):
+    def acquire_token_for_user(self, username, password, browser_mode=False, upn=None):
         """
         Initializes a client to acquire a token via user credentials
         Status: deprecated!
@@ -215,8 +216,9 @@ class AuthenticationContext(object):
         :param str password: The user password
         :param str username: Typically a UPN in the form of an email address
         :param bool browser_mode:
+        :param str upn: Optional UPN if different from username
         """
-        provider = SamlTokenProvider(self.url, username, password, browser_mode)
+        provider = SamlTokenProvider(self.url, username, password, browser_mode, upn)
 
         def _authenticate(request):
             provider.authenticate_request(request)

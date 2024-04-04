@@ -40,7 +40,7 @@ def is_valid_auth_cookies(values):
 
 
 class SamlTokenProvider(AuthenticationProvider, office365.logger.LoggerContext):
-    def __init__(self, url, username, password, browser_mode, environment='commercial'):
+    def __init__(self, url, username, password, browser_mode, upn=None, environment='commercial'):
         """
         SAML Security Token Service provider (claims-based authentication)
 
@@ -48,6 +48,7 @@ class SamlTokenProvider(AuthenticationProvider, office365.logger.LoggerContext):
         :param str username: Typically a UPN in the form of an email address
         :param str password: The password
         :param bool browser_mode:
+        :param str upn: Optional UPN if different from username
         :param str environment: The Office 365 Cloud Environment endpoint used for authentication.
         By default, this will be set to commercial ('commercial', 'GCCH')
         """
@@ -60,6 +61,7 @@ class SamlTokenProvider(AuthenticationProvider, office365.logger.LoggerContext):
         self.error = ""
         self._username = username
         self._password = password
+        self._upn = upn
         self._cached_auth_cookies = None
         self.__ns_prefixes = {
             "S": "{http://www.w3.org/2003/05/soap-envelope}",
@@ -119,7 +121,7 @@ class SamlTokenProvider(AuthenticationProvider, office365.logger.LoggerContext):
         """Get User Realm"""
         resp = requests.post(
             self._sts_profile.user_realm_service_url,
-            data="login={0}&xml=1".format(self._username),
+            data="login={0}&xml=1".format(self._upn or self._username),
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         xml = ElementTree.fromstring(resp.content)
