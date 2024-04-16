@@ -7,8 +7,15 @@ from office365.sharepoint.activities.facets.delete import DeleteFacet
 from office365.sharepoint.activities.facets.discard_checkout import DiscardCheckoutFacet
 from office365.sharepoint.activities.facets.edit import EditFacet
 from office365.sharepoint.activities.facets.get_comment import GetCommentFacet
+from office365.sharepoint.activities.facets.get_mention import GetMentionFacet
+from office365.sharepoint.activities.facets.move import MoveFacet
+from office365.sharepoint.activities.facets.point_in_time_restore import (
+    PointInTimeRestoreFacet,
+)
 from office365.sharepoint.activities.facets.rename import RenameFacet
 from office365.sharepoint.activities.facets.sharing import SharingFacet
+from office365.sharepoint.activities.facets.task_completed import TaskCompletedFacet
+from office365.sharepoint.activities.facets.version import VersionFacet
 
 
 class ActionFacet(ClientValue):
@@ -22,8 +29,13 @@ class ActionFacet(ClientValue):
         delete=DeleteFacet(),
         discard_checkout=DiscardCheckoutFacet(),
         edit=EditFacet(),
+        mention=GetMentionFacet(),
+        move=MoveFacet(),
+        pointInTimeRestore=PointInTimeRestoreFacet(),
         rename=RenameFacet(),
         share=SharingFacet(),
+        taskCompleted=TaskCompletedFacet(),
+        version=VersionFacet(),
     ):
         """
         :param AddToOneDriveFacet add_to_one_drive:
@@ -42,8 +54,13 @@ class ActionFacet(ClientValue):
         self.delete = delete
         self.discardCheckout = discard_checkout
         self.edit = edit
+        self.mention = mention
+        self.move = move
+        self.pointInTimeRestore = pointInTimeRestore
         self.rename = rename
         self.share = share
+        self.taskCompleted = taskCompleted
+        self.version = version
 
     def __repr__(self):
         return self.facet_type
